@@ -149,6 +149,14 @@ tr.us td{background:var(--accent-soft)}tr.iccrow td{background:var(--icc-soft)}
 [data-tip]{cursor:help}
 .stat[data-tip]:hover,.blk[data-tip]:hover,.pcard[data-tip]:hover,.seg div[data-tip]:hover{border-color:var(--accent)}
 .tag[data-tip]:hover,.legend span[data-tip]:hover,th[data-tip]:hover,.hn[data-tip]:hover,.mono[data-tip]:hover{text-decoration:underline dotted;text-underline-offset:3px}
+.howto{margin:-2px 0 12px;font-size:12px;color:var(--muted);max-width:80ch}
+.howto summary{cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-weight:600;list-style:none}
+.howto summary::-webkit-details-marker{display:none}
+.howto summary::before{content:"?";display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--accent);font-size:10px}
+.howto summary::after{content:"▾";font-size:11px;transition:transform .2s}.howto[open] summary::after{transform:rotate(180deg)}
+.howto dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;margin:10px 0 0;padding:12px 14px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.howto dt{font-weight:600;color:var(--ink)}.howto dd{margin:0;line-height:1.45}
+@media (max-width:600px){.howto dl{grid-template-columns:1fr}.howto dd{margin-bottom:6px}}
 .tiphint{margin:12px 0 0;font-size:13px;color:var(--accent)}
 #tip{position:absolute;z-index:50;max-width:min(340px,calc(100vw - 32px));background:var(--ink);color:var(--bg);border-radius:6px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,.18);font-size:14px;line-height:1.45}
 #tip p{margin:0}#tip a{display:inline-block;margin-top:8px;color:var(--bg);font-weight:600}
@@ -226,6 +234,21 @@ tr.us td{background:var(--accent-soft)}tr.iccrow td{background:var(--icc-soft)}
     <div>
       <div class="mono">Образовательный проект · Красноярск · <a href="https://sfu-icc.tilda.ws/" target="_blank" rel="noopener" style="color:inherit">СФУ</a></div>
       <h1>Управление разработкой продукта</h1>
+      <details class="howto">
+        <summary>Как пользоваться страницей</summary>
+        <dl>
+          <dt>Вкладки вверху</dt><dd>«Основной вариант · РФ + ICC» — программа с итальянскими темами. «Вариант без ICC» — только российская часть. «Гипотеза расценок» — цены для человека и компании, сравнение с рынком.</dd>
+          <dt>Цифры в шапке</dt><dd>Нажмите на 100, 13, 50 или 13 — появится пояснение: часы, недели, встречи, эксперты.</dd>
+          <dt>Маршрут курса</dt><dd>9 квадратиков — темы курса по порядку. Нажмите на квадратик — узнаете, чему учимся и какой результат.</dd>
+          <dt>Календарь на 3 месяца</dt><dd>Цвет клетки — тема. Нажмите на клетку — страница перейдёт к этой неделе и сразу откроет нужный день.</dd>
+          <dt>Недели</dt><dd>Квадратик с номером недели открывает все её дни ниже. Стрелки ← → листают недели.</dd>
+          <dt>День</dt><dd>Нажмите на название дня — раскроется описание: 1-й час (теория), 2-й час (практика), результат, материалы.</dd>
+          <dt>Видео ▶</dt><dd>Строка с ▶ в описании дня открывает запись из архива InCourse с нужной минуты.</dd>
+          <dt>Цвета</dt><dd>Цвет клетки — тема. Жёлтый — российский эксперт. Бирюзовый — тема ICC или эксперт из Италии. Бирюзовый уголок — занятие с темой ICC.</dd>
+          <dt>Метки и легенда</dt><dd>Нажмите на любую метку (РФ, ICC, Блок, «1-й час», «Результат») или цвет в легенде — появится пояснение. Закрыть — нажать ещё раз или в любое место.</dd>
+          <dt>Скачать PDF</dt><dd>Программа целиком в PDF: основной вариант или вариант без ICC.</dd>
+        </dl>
+      </details>
       <p>Промышленный дизайн со стороны компании: от задачи бизнеса и трендов до прототипа и запуска производства.</p>
       <div class="stats">
         <div class="stat" data-tip="Всё учебное время курса: 50 встреч по 2 часа. Это 100 астрономических часов, или около 133 академических (по 45 минут)."><b>100</b><span>часов</span></div>
@@ -233,7 +256,6 @@ tr.us td{background:var(--accent-soft)}tr.iccrow td{background:var(--icc-soft)}
         <div class="stat" data-tip="Каждая встреча — 2 часа. 1-й час: теория и разбор кейса. 2-й час: практика на продукте компании."><b>50</b><span>встреч по 2 часа</span></div>
         <div class="stat" data-tip="Раз в неделю, по пятницам, приглашённый эксперт: российские практики, преподаватели ICC и итальянские дизайнеры. Входят в 100 часов."><b>13</b><span>встреч с экспертами</span></div>
       </div>
-      <p class="tiphint">Нажмите на любой квадратик, метку или цифру — появится пояснение.</p>
       <div class="links">
         <a class="chip" href="https://incoursesite.tilda.ws/archive" target="_blank" rel="noopener"><b>АРХИВ</b>Видеоархив InCourse ↗</a>
         <a class="chip" href="https://sfu-icc.tilda.ws/" target="_blank" rel="noopener"><b>СФУ</b>Программы NAD · ICC для СФУ ↗</a>
