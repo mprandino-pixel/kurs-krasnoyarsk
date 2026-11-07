@@ -113,6 +113,9 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:
 @media (max-width:900px){.weeks{grid-template-columns:repeat(4,minmax(0,1fr))}.route{grid-template-columns:repeat(3,minmax(0,1fr))}.hero-art{display:none}header.hero{grid-template-columns:1fr}}
 @media (max-width:520px){.weeks{grid-template-columns:repeat(3,minmax(0,1fr))}.week{padding:8px}.week .wn{font-size:24px}.week .wt{font-size:11px}.route{grid-template-columns:repeat(2,minmax(0,1fr))}.day-body{padding-left:14px}.day-head .dn{min-width:0}.day-head{grid-template-columns:1fr auto}.day-head .dt{grid-column:1}.day-head .chev{grid-row:1/3;grid-column:2}.nav{margin-left:0}.week .wico{width:28px;height:28px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.itps{margin-top:0}
+.price table.txt td,.price table.txt th{white-space:normal;text-align:left}
+.price table.txt td:nth-child(n+4){white-space:nowrap}
 .price{display:flex;flex-direction:column;gap:18px}
 .price h2{font-family:var(--f-display);font-weight:500;font-size:24px;margin:6px 0}
 .price h3{font-family:var(--f-display);font-weight:500;font-size:18px;margin:10px 0 0}
@@ -237,7 +240,7 @@ tr.us td{background:var(--accent-soft)}tr.iccrow td{background:var(--icc-soft)}
       <details class="howto">
         <summary>Как пользоваться страницей</summary>
         <dl>
-          <dt>Вкладки вверху</dt><dd>«Основной вариант · РФ + ICC» — программа с итальянскими темами. «Вариант без ICC» — только российская часть. «Гипотеза расценок» — цены для человека и компании, сравнение с рынком.</dd>
+          <dt>Вкладки вверху</dt><dd>«Основной вариант · РФ + ICC» — программа с итальянскими темами. «Вариант без ICC» — только российская часть. «Гипотеза расценок» — цены для человека и компании, сравнение с рынком. «Программа ИТП СФУ» — двухлетняя программа «Продуктовый менеджмент» и её связь с нашим курсом.</dd>
           <dt>Цифры в шапке</dt><dd>Нажмите на 100, 13, 50 или 13 — появится пояснение: часы, недели, встречи, эксперты.</dd>
           <dt>Маршрут курса</dt><dd>9 квадратиков — темы курса по порядку. Нажмите на квадратик — узнаете, чему учимся и какой результат.</dd>
           <dt>Календарь на 3 месяца</dt><dd>Цвет клетки — тема. Нажмите на клетку — страница перейдёт к этой неделе и сразу откроет нужный день.</dd>
@@ -276,6 +279,7 @@ tr.us td{background:var(--accent-soft)}tr.iccrow td{background:var(--icc-soft)}
     <button class="tab" role="tab" id="tab-v2" data-v="v2" aria-selected="true"><b>Основной вариант · РФ + ICC</b><span>Российская практика и программы ICC. Темы ICC и итальянские эксперты выделены цветом</span></button>
     <button class="tab" role="tab" id="tab-v1" data-v="v1" aria-selected="false"><b>Вариант без ICC</b><span>Только российская практика: InCourse, 2050, тренды, кейсы «Гепард» и «Метро 2020»</span></button>
     <button class="tab" role="tab" id="tab-price" data-v="price" aria-selected="false"><b>Гипотеза расценок</b><span>Цена для человека и для компании, сравнение с рынком и ICC</span></button>
+    <button class="tab" role="tab" id="tab-itp" data-v="itp" aria-selected="false"><b>Программа ИТП СФУ</b><span>ДПО «Продуктовый менеджмент»: 2 года, 16 модулей, вариативная часть</span></button>
   </div>
 
   <div id="progView" style="display:contents">
@@ -380,6 +384,95 @@ tr.us td{background:var(--accent-soft)}tr.iccrow td{background:var(--icc-soft)}
     </table></div>
     <div class="warn"><b>! Важно.</b> Гонорары Italdesign, Pininfarina и ICC — допущение, их нужно подтвердить. 50 встреч по 2 часа — это 100 астрономических или около 133 академических часов. Курс евро — по ЦБ на 6 ноября 2026 года (92,16 ₽). Источники рынка: Perplexity, сайты программ.</div>
   </section>
+  <section id="itpView" class="price" hidden>
+    <div class="ph">
+      <div class="mono">Институт технологического предпринимательства СФУ · «Фабрика Решений»</div>
+      <h2>ДПО «Продуктовый менеджмент»</h2>
+      <p class="note">Программа для предприятий и студентов Красноярска. Участник 2 года работает над реальной задачей предприятия вместе с трекерами-практиками. Даты: 01.12.2026 – 30.11.2028. Данные — из файлов в папке «Анатолий».</p>
+    </div>
+    <div class="stats itps">
+      <div class="stat" data-tip="Срок программы: с 1 декабря 2026 по 30 ноября 2028 года, очно-заочно, без отрыва от работы."><b>2</b><span>года</span></div>
+      <div class="stat" data-tip="16 обязательных модулей-компетенций (ПК-01…ПК-16) плюс вариативная часть под тип продукта."><b>16</b><span>модулей</span></div>
+      <div class="stat" data-tip="Всего по расписанию: 824 ч обязательной части, 152 ч сессий с трекером и ментором, 242 ч вариативной части, 40 ч итоговой аттестации."><b>1 258</b><span>ак. часов</span></div>
+      <div class="stat" data-tip="20 участников в группе, 5 трекеров на группу. 1:1 с трекером раз в две недели, ментор из индустрии раз в месяц."><b>20</b><span>участников в группе</span></div>
+    </div>
+    <h3>Три блока — жизненный цикл продукта</h3>
+    <div class="pcards">
+      <div class="pcard" style="border-top:4px solid var(--b1)"><div class="mono">Блок 1 · 1 семестр</div><div class="pbig" style="font-size:22px">Проектирование</div><p>Найти и проверить рыночную возможность, сформулировать гипотезу и бизнес-модель. Результат: концепция продукта и план MVP. Защита перед руководством предприятия.</p></div>
+      <div class="pcard" style="border-top:4px solid var(--b5)"><div class="mono">Блок 2 · 2 семестра</div><div class="pbig" style="font-size:22px">Создание</div><p>Собрать продукт и подтвердить ценность на реальных пользователях. Результат: работающий продукт, первые метрики, дорожная карта. Пилоты в подразделениях.</p></div>
+      <div class="pcard" style="border-top:4px solid var(--b9)"><div class="mono">Блок 3 · 1 семестр</div><div class="pbig" style="font-size:22px">Развитие</div><p>Масштабировать продажи, команду и процессы. Результат: масштабируемая модель. Итоговая публичная защита продукта.</p></div>
+    </div>
+    <h3>Расписание</h3>
+    <div class="tablewrap"><table class="txt">
+      <thead class="x"><tr><th>День</th><th>Время</th><th>Что</th></tr></thead>
+      <tbody>
+        <tr><td>Вторник</td><td>18:30–20:45</td><td>Лекции по модулям программы</td></tr>
+        <tr class="iccrow"><td>Четверг</td><td>18:30–20:45</td><td>Вариативная часть: отдельная компетенция под тип продукта, преподаватель или приглашённый эксперт</td></tr>
+        <tr><td>Суббота</td><td>10:00–13:00</td><td>Групповая практика с трекерами на задачах участников</td></tr>
+      </tbody>
+    </table></div>
+    <h3>16 модулей</h3>
+    <div class="tablewrap"><table class="txt">
+      <thead><tr><th>ПК</th><th>Блок</th><th>Модуль</th><th data-tip="Академические часы: лекции, практика, самостоятельная работа и защита.">Ак. ч</th><th>Начало</th><th>Защита</th></tr></thead>
+      <tbody>
+        <tr><td><span class="sw" style="--c:var(--b1)"></span>ПК-01</td><td>Проектирование</td><td>Продуктовый подход: мышление в категориях ценности клиента</td><td>24</td><td>01.12.2026</td><td>19.12.2026</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b1)"></span>ПК-02</td><td>Проектирование</td><td>Поиск и оценка рыночных возможностей</td><td>42</td><td>15.12.2026</td><td>30.01.2027</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b1)"></span>ПК-03</td><td>Проектирование</td><td>Формирование и проверка продуктовой гипотезы</td><td>38</td><td>26.01.2027</td><td>27.02.2027</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b1)"></span>ПК-04</td><td>Проектирование</td><td>Проектирование продукта, бизнес-модели и управление рисками</td><td>38</td><td>25.02.2027</td><td>27.03.2027</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b1)"></span>ПК-05</td><td>Проектирование</td><td>Коммуникация, презентация и защита продукта</td><td>34</td><td>23.03.2027</td><td>08.05.2027</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b5)"></span>ПК-06</td><td>Создание</td><td>Промпт-инжиниринг и работа с ИИ-инструментами</td><td>30</td><td>01.06.2027</td><td>19.06.2027</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b5)"></span>ПК-07</td><td>Создание</td><td>Быстрая разработка продукта с помощью ИИ (вайбкодинг)</td><td>58</td><td>08.06.2027</td><td>28.08.2027</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b5)"></span>ПК-08</td><td>Создание</td><td>Разработка и валидация минимально жизнеспособной версии (МЖВ)</td><td>50</td><td>24.08.2027</td><td>25.09.2027</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b5)"></span>ПК-09</td><td>Создание</td><td>Управление командой: видение, найм, управление и эффективность</td><td>49</td><td>21.09.2027</td><td>30.10.2027</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b5)"></span>ПК-10</td><td>Создание</td><td>Приоритизация бэклога и гибкие процессы создания продукта</td><td>45</td><td>26.10.2027</td><td>27.11.2027</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b9)"></span>ПК-11</td><td>Развитие</td><td>Продуктовая аналитика и эксперименты</td><td>68</td><td>11.01.2028</td><td>12.02.2028</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b9)"></span>ПК-12</td><td>Развитие</td><td>Экономика продукта</td><td>51</td><td>08.02.2028</td><td>11.03.2028</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b9)"></span>ПК-13</td><td>Развитие</td><td>Маркетинг продукта, привлечение, удержание и развитие пользователей</td><td>88</td><td>07.03.2028</td><td>29.04.2028</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b9)"></span>ПК-14</td><td>Развитие</td><td>Прямые и корпоративные продажи продукта</td><td>94</td><td>25.04.2028</td><td>24.06.2028</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b9)"></span>ПК-15</td><td>Развитие</td><td>Финансы компании и устойчивость бизнеса</td><td>65</td><td>20.06.2028</td><td>02.09.2028</td></tr>
+        <tr><td><span class="sw" style="--c:var(--b9)"></span>ПК-16</td><td>Развитие</td><td>Продуктовая стратегия</td><td>50</td><td>29.08.2028</td><td>30.09.2028</td></tr>
+        <tr class="tot"><td colspan="3">Обязательная часть</td><td>824</td><td></td><td></td></tr>
+      </tbody>
+    </table></div>
+    <h3>Часы по видам работы</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Вид</th><th>Блок 1</th><th>Блок 2</th><th>Блок 3</th><th>Итого</th></tr></thead>
+      <tbody>
+        <tr><td>Обязательные модули: лекции, практика, защиты, самостоятельная работа</td><td>176</td><td>232</td><td>416</td><td>824</td></tr>
+        <tr><td>Сессии с трекером и ментором</td><td>40</td><td>48</td><td>64</td><td>152</td></tr>
+        <tr class="iccrow"><td>Вариативная часть (≈40 % аудиторно)</td><td>68</td><td>68</td><td>106</td><td>242</td></tr>
+        <tr><td>Итоговая аттестация</td><td>0</td><td>0</td><td>40</td><td>40</td></tr>
+        <tr class="tot"><td>Всего</td><td>284</td><td>348</td><td>626</td><td>1 258</td></tr>
+      </tbody>
+    </table></div>
+    <h3>Вариативная часть — по типу продукта</h3>
+    <div class="tablewrap"><table class="txt">
+      <thead><tr><th>Этап</th><th>Вариативные компетенции</th></tr></thead>
+      <tbody>
+        <tr><td>Проектирование</td><td>Отраслевой анализ под продукт · Работа с заказчиком внутри компании: стейкхолдеры, внутренний бюджет, защита проекта · Рынки гражданского применения технологий</td></tr>
+        <tr><td>Создание</td><td>B2B и промышленные решения: пилоты и сложные продажи · <b>Аппаратные и deep-tech продукты</b> · Интеграция в процессы и ИТ-ландшафт компании · Регулируемая среда и информационная безопасность</td></tr>
+        <tr><td>Развитие</td><td>Гранты, господдержка, партнёры · Масштабирование внутреннего продукта на подразделения и группу компаний · Вывод технологии на гражданский рынок</td></tr>
+      </tbody>
+    </table></div>
+    <h3>Участие и стоимость</h3>
+    <div class="pcards" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+      <div class="pcard"><div class="mono">Вариант 1 · Обучение сотрудника</div><div class="pbig" style="font-size:24px">до 500 000 ₽ <small>в год на участника</small></div><p>Учится сотрудник или кадровый резерв. Предприятие оплачивает обучение (полностью или частично), даёт рабочую задачу. Получает руководителя продукта внутри компании.</p></div>
+      <div class="pcard"><div class="mono">Вариант 2 · Грант под задачу</div><div class="pbig" style="font-size:24px">450 000 ₽ <small>в год, ≈ 37 500 ₽/мес</small></div><p>Учится студент или внешний специалист, отобранный под задачу. Предприятие даёт грант 90 % стоимости, задачу и эксперта. Права на продукт — у предприятия.</p></div>
+    </div>
+    <h3>Рядом с нашим курсом</h3>
+    <div class="tablewrap"><table class="txt">
+      <thead><tr><th>Параметр</th><th>ИТП СФУ</th><th>Наш курс</th></tr></thead>
+      <tbody>
+        <tr><td>Вид ДПО</td><td>Переподготовка, диплом</td><td>Повышение квалификации</td></tr>
+        <tr><td>Срок</td><td>2 года</td><td>3 месяца</td></tr>
+        <tr><td>Объём</td><td>1 258 ак. ч</td><td>≈ 133 ак. ч (100 астрономических)</td></tr>
+        <tr><td>Формат</td><td>Вт, Чт вечер + суббота, трекеры</td><td>4 встречи в неделю по 2 часа, эксперты по пятницам</td></tr>
+        <tr><td>Промышленный дизайн</td><td>В 16 обязательных модулях нет. В вариативной части — «Аппаратные и deep-tech продукты», «B2B и промышленные решения»</td><td>Основная тема курса</td></tr>
+        <tr class="iccrow"><td>Вариативная часть</td><td>242 ак. ч, «состав определяется отдельно»</td><td>—</td></tr>
+        <tr><td>Цена на участника</td><td>до 500 000 ₽ в год</td><td>180 000 ₽ (гипотеза)</td></tr>
+      </tbody>
+    </table></div>
+  </section>
   <footer><span>Margarita Prandino</span><span>Дни недели — ориентир, уточняются под расписание компании</span></footer>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -422,7 +515,7 @@ const col=b=>`var(--b${b+1})`;
 function esc(t){return String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 
 function render(){
-  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",view==="price"?t.dataset.v==="price":t.dataset.v===cur));$("#priceView").hidden=view!=="price";$("#progView").style.display=view==="price"?"none":"contents";
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",view!=="prog"?t.dataset.v===view:t.dataset.v===cur));$("#priceView").hidden=view!=="price";$("#itpView").hidden=view!=="itp";$("#progView").style.display=view!=="prog"?"none":"contents";
   $("#vnote").innerHTML=cur==="v1"?"Основа: архив InCourse (Italdesign, РАНХиГС, Академия Ростеха), наставничество 2050, курс «Тренды дизайна 2026». Сквозные кейсы — «Гепард» и «Метро 2020».":"50 ч — российские темы, 28 ч — ICC, 22 ч — совместные. Сквозные кейсы — «Гепард» и «Метро 2020». <a href=\"https://sfu-icc.tilda.ws/\" target=\"_blank\" rel=\"noopener\" style=\"color:var(--accent)\">Программы ICC для СФУ ↗</a>";
   const B=BLOCKS[cur];
   $("#route").innerHTML=B.map((t,i)=>`<div class="blk" style="--c:${col(i)}" data-tip="${BLOCK_TIPS[i]}">${ico(i+1,"ico")}<div class="n">БЛОК ${i+1}</div><div class="t">${esc(t)}</div><div class="h">${COUNTS[cur][i]*2} ч · ${COUNTS[cur][i]} зан.</div></div>`).join("");
@@ -481,7 +574,7 @@ function renderHours(){
   $("#hours").innerHTML=`<thead><tr><th data-tip="9 тематических блоков курса по порядку разработки продукта.">Блок</th><th data-tip="Часы занятий блока. Одна встреча — 2 часа.">Часов</th>${v==="v2"?`<th data-tip="Часы на российских материалах.">РФ</th><th data-tip="Часы по программам ICC.">ICC</th><th data-tip="Часы совместных занятий.">РФ + ICC</th>`:""}</tr></thead><tbody>${rows}${tail}</tbody>`;
 }
 document.addEventListener("click",e=>{
-  const t=e.target.closest(".tab");if(t&&t.dataset.v==="price"){view="price";history.replaceState(null,"","#price");render();return}
+  const t=e.target.closest(".tab");if(t&&(t.dataset.v==="price"||t.dataset.v==="itp")){view=t.dataset.v;history.replaceState(null,"","#"+view);render();return}
   if(t){view="prog";cur=t.dataset.v;openWeek=null;try{localStorage.setItem("kv2",cur)}catch(_){}
     if(location.hash!=="#"+(cur==="v1"?"variant-1":"variant-2"))history.replaceState(null,"","#"+(cur==="v1"?"variant-1":"variant-2"));render();return}
   const cc=e.target.closest(".cc[data-w]");if(cc){openWeek=+cc.dataset.w;render();const k=+cc.dataset.k;document.querySelectorAll("#detail .day").forEach((d,i)=>{const b=d.querySelector(".day-body"),h=d.querySelector(".day-head");const o=i===k;b.hidden=!o;d.setAttribute("open-state",o?1:0);h.setAttribute("aria-expanded",o)});
@@ -498,7 +591,7 @@ document.addEventListener("click",e=>{
   const pc=e.target.closest(".pclose");if(pc){const box=pc.closest(".player");box.innerHTML="";box.hidden=true;document.querySelectorAll(".vbtn[aria-current]").forEach(b=>b.removeAttribute("aria-current"));return}
 });
 function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,3500)}
-(function init(){let h=location.hash;if(h==="#price")view="price";if(h==="#variant-1")cur="v1";else if(h==="#variant-2")cur="v2";else{try{const s=localStorage.getItem("kv2");if(s==="v1"||s==="v2")cur=s}catch(_){}}render()})();
+(function init(){let h=location.hash;if(h==="#price")view="price";if(h==="#itp")view="itp";if(h==="#variant-1")cur="v1";else if(h==="#variant-2")cur="v2";else{try{const s=localStorage.getItem("kv2");if(s==="v1"||s==="v2")cur=s}catch(_){}}render()})();
 
 (function(){const tip=document.getElementById("tip"),tt=document.getElementById("tipText"),tl=document.getElementById("tipLink");let curEl=null;
 function hide(){tip.hidden=true;curEl=null}
@@ -510,7 +603,7 @@ document.addEventListener("click",e=>{if(e.target.closest("#tip"))return;const e
   if(r.bottom+tip.offsetHeight+16>window.innerHeight&&r.top>tip.offsetHeight+16)top=r.top+window.scrollY-tip.offsetHeight-8;
   tip.style.left=left+"px";tip.style.top=top+"px";},true);
 document.addEventListener("keydown",e=>{if(e.key==="Escape")hide()});window.addEventListener("resize",hide);})();
-addEventListener("hashchange",()=>{if(location.hash==="#price"){view="price";render();return}view="prog";const n=location.hash==="#variant-1"?"v1":"v2";if(n!==cur){cur=n;openWeek=null}render()});
+addEventListener("hashchange",()=>{if(location.hash==="#price"||location.hash==="#itp"){view=location.hash.slice(1);render();return}view="prog";const n=location.hash==="#variant-1"?"v1":"v2";if(n!==cur){cur=n;openWeek=null}render()});
 </script>
 
 </body>
