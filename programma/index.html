@@ -82,6 +82,7 @@ footer{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-
 .mw{display:flex;gap:5px;flex-wrap:wrap}
 .wk{width:30px;height:30px;border:1px solid var(--line);border-radius:4px;display:flex;align-items:center;justify-content:center;gap:3px}
 .wk i,.lg i.d{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block}
+.wk i.x,.lg i.d.x{background:#E5484D}
 .wk.o,.lg i.o{background:var(--expert);border-color:var(--expert)}
 .lg{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;font-size:12px;color:var(--muted)}
 .lg i{margin-right:6px;vertical-align:-1px}.lg i.o{display:inline-block;width:12px;height:12px;border-radius:3px}
@@ -119,7 +120,7 @@ footer{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-
 <button type="button" class="pb" role="tab" aria-selected="false" data-m="9"><b>9 мес</b><span>1–2 занятия в неделю</span><span>~2,5 ч · 6–7 %</span><span style="color:var(--accent)">+ по запросу: дополнительные занятия в интересных вам блоках, до 2 занятий в неделю — всего до 150 ч</span></button>
 </div>
 <div id="pv" hidden><div class="wg" id="wg"></div>
-<div class="lg"><span><i class="d"></i>занятие 2 ч</span><span><i class="o"></i>очная неделя в Красноярске, сверх 100 ч: нетворкинг и эксперты</span></div></div>
+<div class="lg"><span><i class="d"></i>занятие 2 ч</span><span><i class="d x"></i>встреча с экспертом 2 ч</span><span><i class="o"></i>очная неделя в Красноярске, сверх 100 ч: нетворкинг и эксперты</span></div></div>
 </section>
 <section class="card aud"><h2>Для кого</h2>
 <p>Курс рассчитан на тех, кто работает с дизайном со стороны компании: руководителей проектов и сотрудников продукта, маркетинга, инженерии и производства.</p>
@@ -154,7 +155,7 @@ for(let i=0;i<W;i++){per.push(1)}
 // distribute extra doubles evenly
 for(let k=0;k<extra;k++){per[Math.floor((k+0.5)*W/extra)]=2}
 const months=[];let w=0;for(let mi=0;mi<m;mi++){const n=Math.round((mi+1)*W/m)-Math.round(mi*W/m);months.push(per.slice(w,w+n));w+=n}
-const sq=c=>`<span class="wk">${"<i></i>".repeat(c)}</span>`;const o=`<span class="wk o" title="Очная неделя"></span>`;
+const EX=new Set();for(let k=0;k<13;k++)EX.add(Math.floor(k*W/13));let wi=0;const sq=c=>{const e=EX.has(wi++);return `<span class="wk">${(e?'<i class="x"></i>':"")+"<i></i>".repeat(e?c-1:c)}</span>`};const o=`<span class="wk o" title="Очная неделя"></span>`;
 document.getElementById("wg").innerHTML=months.map((ws,mi)=>`<div class="mr"><span class="ml">М${mi+1}</span><div class="mw">${mi==0?o:""}${ws.map(sq).join("")}${mi==m-1?o:""}</div></div>`).join("");
 document.querySelectorAll(".pb").forEach(b=>b.setAttribute("aria-selected",b.dataset.m==m))}
 let cur=0;document.querySelectorAll(".pb").forEach(b=>b.onclick=()=>{const m=+b.dataset.m;const pv=document.getElementById("pv");if(cur===m){cur=0;pv.hidden=true;document.querySelectorAll(".pb").forEach(x=>x.setAttribute("aria-selected","false"));return}cur=m;pv.hidden=false;plan(m)});
