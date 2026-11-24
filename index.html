@@ -827,7 +827,20 @@ if(site&&!separate){
  }
  const observer=new MutationObserver(annotateRoute);observer.observe(route,{childList:true});observer.observe(document.getElementById('tab-v3'),{attributes:true,attributeFilter:['aria-selected']});annotateRoute();
 }
-function hoursEditor(i,id,name,value){const input=numberField(value,'Часы: '+name+' — '+topics[i][0]);input.addEventListener('input',()=>{if(input.value&&input.validity.valid){activeHours()[i][id]=input.valueAsNumber;save();refresh(false);}});input.addEventListener('change',()=>{if(input.value&&input.validity.valid)set(i,id,input.valueAsNumber);else input.value=activeHours()[i][id];});return input;}
+function hoursEditor(i,id,name,value){
+ const input=el('input','','ex-input');input.type='text';input.inputMode='decimal';input.value=String(value).replace('.',',');
+ input.dataset.hoursTopic=i;input.dataset.hoursExpert=id;
+ input.setAttribute('aria-label','Часы: '+name+' — '+topics[i][0]);
+ input.addEventListener('input',()=>{
+  const raw=input.value.trim();const amount=Number(raw.replace(',','.'));
+  const valid=/^(?:[0-9]+(?:[.,][0-9]{0,2})?|[.,][0-9]{1,2})$/.test(raw)&&Number.isFinite(amount);
+  input.setCustomValidity(valid?'':'Введите часы числом, например 1,5.');
+  if(!valid)return;
+  activeHours()[i][id]=amount;save();refresh(false);
+ });
+ input.addEventListener('blur',()=>{input.value=String(activeHours()[i][id]).replace('.',',');input.setCustomValidity('');});
+ return input;
+}
 function refresh(rebuild=true){
  const sums=Object.fromEntries(state.experts.map(([id])=>[id,summation(activeHours().map(row=>row[id]||0))])); const totals={EUR:0,RUB:0}; let assigned=0;let over=0;
  activeHours().forEach((row,i)=>{const h=summation(Object.values(row));assigned+=Math.min(topics[i][1],h);over+=Math.max(0,h-topics[i][1]);});
@@ -844,8 +857,15 @@ function refresh(rebuild=true){
  const open=new Set([...personBody.querySelectorAll('details[open]')].map(d=>d.dataset.person));personBody.replaceChildren();
  for(const [id,name,cat] of state.experts){const indices=topics.map((_,i)=>i).filter(i=>Object.hasOwn(activeHours()[i],id));if(!indices.length)continue;const d=el('details','','flag aflag ex-card');d.dataset.person=id;d.open=open.has(id);const summary=el('summary',name+' · '+fmt(sums[id])+' ч · '+money(sums[id]*rate(sums[id],categories[cat][2]),categories[cat][1]));d.append(summary);for(const i of indices){const row=el('div','','ex-hours-row');row.append(el('span',topics[i][0]),el('strong',fmt(activeHours()[i][id])+' ч'));d.append(row);}personBody.append(d);}
  const hint=byPerson.querySelector('summary .fhint');if(hint)hint.textContent=personBody.children.length+' экспертов';
- if(!rebuild)return;
- cardEntries.forEach(({block,i})=>{block.replaceChildren();const [title,duration]=topics[i];const h=summation(Object.values(activeHours()[i]));block.append(el('strong',fmt(h)+' из '+duration+' ч назначено'));const controls=el('div','','ex-assign');if(course==='v3'&&i>=guestStart){
+ if(!rebuild){
+  for(const {block,i} of cardEntries){
+   const subtotal=block.querySelector('[data-topic-subtotal]');
+   if(subtotal)subtotal.textContent=fmt(summation(Object.values(activeHours()[i])))+' из '+topics[i][1]+' ч назначено';
+   for(const field of block.querySelectorAll('[data-hours-expert]'))if(field!==document.activeElement)field.value=String(activeHours()[i][field.dataset.hoursExpert]).replace('.',',');
+  }
+  return;
+ }
+ cardEntries.forEach(({block,i})=>{block.replaceChildren();const [title,duration]=topics[i];const h=summation(Object.values(activeHours()[i]));const subtotal=el('strong',fmt(h)+' из '+duration+' ч назначено');subtotal.dataset.topicSubtotal='';block.append(subtotal);const controls=el('div','','ex-assign');if(course==='v3'&&i>=guestStart){
  const selected=Object.entries(activeHours()[i]);
  const picker=el('select');picker.setAttribute('aria-label',title);picker.add(new Option('Выбрать эксперта',''));
  for(const [id,name] of state.experts)picker.add(new Option(name,id));
