@@ -719,7 +719,7 @@ addEventListener("hashchange",()=>{if(location.hash==="#price"||location.hash===
   const defaults = {};
   const excludesOleg = session => /CMF|СМФ|\bC\s*&\s*T\b|скетчинг|sketching/iu.test(session.title) || /CMF|СМФ/iu.test(session.desc);
   for (const session of sessions) {
-    const names = session.expert ? [session.desc,session.mat].join(' ') : (session.mat || '').replace(/([^)]*)/g, '');
+    const names = session.expert ? [session.desc,session.mat].join(' ') : (session.mat || '').replace(/[(][^)]*[)]/g, '');
     const chosen = experts.filter(([id,name]) => names.includes(name) && (id !== 'oleg' || !excludesOleg(session))).map(([id]) => id);
     if (!session.expert && !excludesOleg(session) && !chosen.includes('oleg')) chosen.push('oleg');
     const equalShare = chosen.length ? Math.floor(200 / chosen.length) : 0;
