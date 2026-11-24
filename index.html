@@ -690,150 +690,72 @@ addEventListener("hashchange",()=>{if(location.hash==="#price"||location.hash===
 
 
 <style>
-.auto-budget{background:var(--sheet);border:1px solid var(--accent);border-radius:6px;padding:18px}.auto-budget[hidden]{display:none}.auto-budget h2{margin-bottom:8px}.auto-budget p{margin:8px 0}.auto-budget input[type=number]{width:6em;background:var(--sheet);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:4px}.auto-budget output{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}.auto-budget summary{cursor:pointer;padding:8px 0;font-weight:700}.auto-budget fieldset{border:1px solid var(--line);border-radius:4px;margin:8px 0;padding:8px 12px;min-width:0}.auto-budget legend{font-weight:700}.auto-experts{display:flex;flex-wrap:wrap;gap:6px 14px}.auto-expert{display:inline-flex;align-items:center;gap:5px;font-size:13px}.auto-budget .auto-warn{color:var(--b2)}.auto-budget .auto-costs{overflow:auto}.auto-costs table{width:100%;border-collapse:collapse;text-align:left}.auto-costs th,.auto-costs td{padding:5px 8px;border-bottom:1px solid var(--line)}
-</style>
-<script>
+.ex-panel{background:var(--sheet,#fff);border:1px solid var(--line,#d5dbe4);border-radius:6px;padding:16px;margin:12px 0}.ex-panel h2{margin:0 0 8px}.ex-panel output{color:var(--accent,#1f4fd1);font-weight:700;font-size:1.2em}.ex-panel p{margin:8px 0}.ex-panel input,.ex-panel select,.ex-input{background:var(--sheet,#fff);color:var(--ink,#18202b);border:1px solid var(--line,#d5dbe4);padding:5px;border-radius:4px;font:inherit}.ex-panel input[type=number],.ex-input{width:6em}.ex-panel table{border-collapse:collapse;width:100%;text-align:left}.ex-panel th,.ex-panel td{padding:7px;border-bottom:1px solid var(--line,#d5dbe4)}.ex-scroll{overflow:auto}.ex-assign{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}.ex-assign label{display:inline-flex;align-items:center;gap:5px}.ex-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.ex-actions button{cursor:pointer}.ex-hours-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0}.ex-panel [hidden]{display:none}.ex-standalone{max-width:1120px;margin:24px auto;padding:0 16px}.ex-card{padding:8px;border:1px solid var(--line,#d5dbe4);margin:6px 0;border-radius:4px}
+</style><script>
 (() => {
-  const experts = [
-    ['michele','Микеле Лионелло','Италия · топ','EUR'],
-    ['oleg','Олег Клявин','Россия · топ','RUB'],
-    ['tigran','Тигран Лалаян','Россия · средний','RUB'],
-    ['margarita','Маргарита Прандино','Италия · средний','EUR'],
-    ['vlad','Влад Новиков','Россия · средний','RUB'],
-    ['maxim','Максим Кузин','Россия · средний','RUB'],
-    ['marcello','Марчелло Прина','Италия · средний','EUR'],
-    ['luca','Лука Виванти','Италия · средний','EUR'],
-    ['nicola','Никола Гуэльфо','Италия · средний','EUR']
-  ];
-  const tariffHours = [4,15,20,40,50,80,100];
-  const tariffs = {
-    'Италия · топ':[450,250,240,180,170,140,120],
-    'Италия · средний':[300,200,190,150,140,120,100],
-    'Россия · топ':[15000,9500,9000,7500,7000,6000,5000],
-    'Россия · средний':[10000,6500,6000,5000,4500,4000,3500]
-  };
-  const storageKey = 'kurs-krasnoyarsk:auto-budget:v1';
-  let saved = {};
-  try { saved = JSON.parse(localStorage.getItem(storageKey)) || {}; } catch {}
-  const sessions = DATA.v3.flatMap(week => week.sessions.map(session => ({...session,week:week.w})));
-  const defaults = {};
-  const excludesOleg = session => /CMF|СМФ|\bC\s*&\s*T\b|скетчинг|sketching/iu.test(session.title) || /CMF|СМФ/iu.test(session.desc);
-  for (const session of sessions) {
-    const names = session.expert ? [session.desc,session.mat].join(' ') : (session.mat || '').replace(/[(][^)]*[)]/g, '');
-    const chosen = experts.filter(([id,name]) => names.includes(name) && (id !== 'oleg' || !excludesOleg(session))).map(([id]) => id);
-    if (!session.expert && !excludesOleg(session) && !chosen.includes('oleg')) chosen.push('oleg');
-    const equalShare = chosen.length ? Math.floor(200 / chosen.length) : 0;
-    defaults[session.n] = Object.fromEntries(chosen.map((id,i) => [id,(equalShare + (i < 200 % chosen.length ? 1 : 0))/100]));
-  }
-  const allocations = {...defaults,...saved.allocations};
-  const section = document.createElement('section');
-  section.className = 'auto-budget';
-  section.hidden = true;
-  section.setAttribute('aria-labelledby','auto-budget-title');
-  section.innerHTML = '<h2 id="auto-budget-title">Себестоимость · гонорары экспертов</h2><p><output id="auto-total" aria-live="polite"></output></p><p id="auto-coverage" class="note"></p><label>Курс ₽ за € для общего итога <input id="auto-fx" type="number" min="0.01" step="0.01" inputmode="decimal"></label><p class="note">Оценка прямых гонораров. Ставка зависит от суммарных часов человека. Для объёма меньше 4 ч применяется ставка за 4 ч к фактическим часам. Для объёма свыше 100 ч применяется ставка за 100 ч. Перевод, поездки, налоги и другие затраты в этой сумме отсутствуют.</p><p class="note">Команда Микеле предварительно оценивает покрытие примерно в 80% тем брифа. По выделению в брифе отмечено 19 из 25 пунктов. Часы команды уточняются после Zoom. Показанные назначения — рабочая оценка.</p><p class="note">Олег предложен на учебные занятия, кроме скетчинга и CMF. В занятиях по AI его часть охватывает инструменты вне скетчинга. В совместных занятиях часы по умолчанию делятся между лекторами. География тарифа означает сторону проекта.</p><details><summary>Часы и гонорары по людям</summary><div class="auto-costs"><table><thead><tr><th>Эксперт</th><th>Категория</th><th>Часы</th><th>Гонорар</th></tr></thead><tbody id="auto-cost-rows"></tbody></table></div></details><details id="auto-assignments"><summary>Назначить экспертов и изменить часы</summary><p class="note">Флажок добавляет эксперта на занятие. Можно изменить часы каждого. Изменения сохраняются в этом браузере.</p></details>';
-  document.getElementById('vnote').after(section);
-  const fx = section.querySelector('#auto-fx');
-  fx.value = saved.fx || '';
-  const assignments = section.querySelector('#auto-assignments');
-  const persist = () => { try { localStorage.setItem(storageKey, JSON.stringify({allocations,fx:fx.value})); } catch {} };
-  const money = (value,currency) => new Intl.NumberFormat('ru-RU',{style:'currency',currency,maximumFractionDigits:2}).format(value);
-  const quantity = value => new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2}).format(value);
-  const hourly = (hours,category) => {
-    const rates = tariffs[category];
-    const h = Math.max(4,Math.min(100,hours));
-    const hi = tariffHours.findIndex(value => value >= h);
-    if (tariffHours[hi] === h) return rates[hi];
-    const lo = hi-1;
-    return rates[lo] * (h/tariffHours[lo]) ** (Math.log(rates[hi]/rates[lo])/Math.log(tariffHours[hi]/tariffHours[lo]));
-  };
-  function update() {
-    const total = {EUR:0,RUB:0};
-    let allocated = 0;
-    let open = 0;
-    let over = 0;
-    for (const session of sessions) {
-      const sum = Object.values(allocations[session.n]).reduce((a,h) => a+h,0);
-      allocated += Math.min(sum,2);
-      if (sum < 1.999) open++;
-      if (sum > 2.001) over++;
-      section.querySelector('[data-session="'+session.n+'"]').textContent = quantity(sum)+' из 2 ч';
-    }
-    const rows = section.querySelector('#auto-cost-rows');
-    rows.replaceChildren();
-    for (const [id,name,category,currency] of experts) {
-      const hours = Object.values(allocations).reduce((sum,row) => sum+(row[id] || 0),0);
-      const fee = Math.round(hours*hourly(hours,category)*100)/100;
-      total[currency] += fee;
-      const row = rows.insertRow();
-      for (const value of [name,category,quantity(hours),money(fee,currency)]) row.insertCell().textContent = value;
-    }
-    const combined = fx.validity.valid && fx.valueAsNumber > 0 ? ' · всего '+money(total.RUB+total.EUR*fx.valueAsNumber,'RUB') : '';
-    section.querySelector('#auto-total').textContent = money(total.EUR,'EUR')+' + '+money(total.RUB,'RUB')+combined;
-    section.querySelector('#auto-coverage').textContent = 'Распределено '+quantity(allocated)+' из 120 ч программы · '+open+' встреч с незакрытыми часами'+(over ? ' · '+over+' встреч с назначениями свыше 2 ч' : '');
-  }
-  for (const week of DATA.v3) {
-    const group = document.createElement('details');
-    const heading = document.createElement('summary');
-    heading.textContent = 'Неделя '+week.w+' · '+week.label;
-    group.append(heading);
-    for (const session of week.sessions) {
-      const field = document.createElement('fieldset');
-      const legend = document.createElement('legend');
-      legend.textContent = session.expert ? session.desc : session.title;
-      const status = document.createElement('span');
-      status.className = 'note';
-      status.dataset.session = session.n;
-      const controls = document.createElement('div');
-      controls.className = 'auto-experts';
-      field.append(legend,status,controls);
-      for (const [id,name,category] of experts) {
-        const label = document.createElement('label');
-        label.className = 'auto-expert';
-        const enabled = document.createElement('input');
-        enabled.type = 'checkbox';
-        enabled.checked = Object.hasOwn(allocations[session.n],id);
-        enabled.title = category;
-        const hours = document.createElement('input');
-        hours.type = 'number';
-        hours.min = '0';
-        hours.step = '0.01';
-        hours.value = allocations[session.n][id] ?? 2;
-        hours.hidden = !enabled.checked;
-        hours.setAttribute('aria-label','Часы: '+name+' — '+legend.textContent);
-        if (id === 'oleg' && excludesOleg(session)) {
-          enabled.disabled = true;
-          enabled.title = 'Скетчинг и CMF вне назначения';
-        }
-        enabled.addEventListener('change',() => {
-          if (enabled.checked) {
-            const assigned = Object.values(allocations[session.n]).reduce((a,h) => a+h,0);
-            hours.value = Math.round(Math.max(0,2-assigned)*100)/100;
-            allocations[session.n][id] = Number(hours.value);
-          } else delete allocations[session.n][id];
-          hours.hidden = !enabled.checked;
-          persist();
-          update();
-        });
-        hours.addEventListener('input',() => {
-          if (!hours.validity.valid || !enabled.checked) return;
-          allocations[session.n][id] = Number(hours.value);
-          persist();
-          update();
-        });
-        label.append(enabled,document.createTextNode(name),hours);
-        controls.append(label);
-      }
-      group.append(field);
-    }
-    assignments.append(group);
-  }
-  fx.addEventListener('input',() => { persist(); update(); });
-  const autoTab = document.getElementById('tab-v3');
-  const syncVisibility = () => { section.hidden = autoTab.getAttribute('aria-selected') !== 'true'; };
-  new MutationObserver(syncVisibility).observe(autoTab,{attributes:true,attributeFilter:['aria-selected']});
-  syncVisibility();
-  update();
+const seedExperts = [["oleg","Олег Клявин","ru-top"],["michele","Микеле Лионелло","it-top"],["margarita","Маргарита Прандино","it-mid"],["tigran","Тигран Лалаян","ru-mid"],["maxim","Максим Кузин","ru-mid"],["vlad","Влад Новиков","ru-mid"],["marcello","Марчелло Прина","it-mid"],["luca","Лука Виванти","it-mid"],["nicola","Никола Гуэльфо","it-mid"]];
+const topics = [["Зачем компании промышленный дизайн",2,{"michele":1,"margarita":1}],["Паспорт проекта",2,{"vlad":1}],["Тренды и культура дизайна",10,{"margarita":10}],["Выбор исполнителя и тендер",2,{"maxim":1}],["Разработка и выбор концепции",8,{"michele":4,"tigran":4}],["От концепции к конструкции",8,{"michele":8}],["Концептинг и прототипирование: интерьер и экстерьер",4,{"michele":1.33,"maxim":1.33}],["Изменения в серийной жизни",2,{"oleg":2}],["Ателье и детейлинг",2,{"oleg":2}],["Рестайлинг, фейслифт, деривативы",2,{"michele":1,"tigran":1}],["HMI и цифровой дизайн",10,{"oleg":10}],["AI-инструменты",4,{"oleg":4}],["Дизайн в жёстких условиях",2,{"maxim":1}],["Китайские студии",2,{"vlad":2}]];
+const categories = {
+  'it-top':['Италия · топ','EUR',[450,250,240,180,170,140,120]],
+  'it-mid':['Италия · средний','EUR',[300,200,190,150,140,120,100]],
+  'ru-top':['Россия · топ','RUB',[15000,9500,9000,7500,7000,6000,5000]],
+  'ru-mid':['Россия · средний','RUB',[10000,6500,6000,5000,4500,4000,3500]]
+};
+const anchors = [4,15,20,40,50,80,100];
+const key = 'kurs-krasnoyarsk:expert-roster:v1';
+let state = {experts:seedExperts, hours:topics.map(t=>t[2]), fx:''};
+try { const stored=localStorage.getItem(key); if(stored) state=JSON.parse(stored); } catch {}
+const el = (tag,text,cls) => {const e=document.createElement(tag); if(text) e.textContent=text; if(cls) e.className=cls; return e;};
+const fmt = n => new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2}).format(n);
+const money = (n,c) => new Intl.NumberFormat('ru-RU',{style:'currency',currency:c,maximumFractionDigits:2}).format(n);
+const save = () => {try {localStorage.setItem(key,JSON.stringify(state));} catch {}};
+const set = (i,id,h) => {if(h===null) delete state.hours[i][id]; else state.hours[i][id]=h; save(); refresh();};
+const rate = (count,series) => {const h=Math.min(100,Math.max(4,count)); const i=anchors.findIndex(x=>x>=h); if(anchors[i]===h)return series[i]; return series[i-1]*(h/anchors[i-1])**(Math.log(series[i]/series[i-1])/Math.log(anchors[i]/anchors[i-1]));};
+const summation = values => values.reduce((a,b)=>a+b,0);
+const site = document.getElementById('autoTopics');
+const separate = !site || new URLSearchParams(location.search).has('experts');
+const host = el('main','','ex-standalone');
+if(site && separate){for(const child of [...document.body.children]) if(child.tagName!=='SCRIPT'&&child.tagName!=='STYLE')child.style.display='none'; document.body.append(host); const back=el('a','← Автомобильный дизайн');back.href='./#variant-3';host.append(back);}
+else if(!site) document.body.append(host);
+const budget=el('section','','ex-panel');
+budget.append(el('h2','Себестоимость · гонорары автомобильных экспертов'));
+const total=el('output'); total.id='auto-total'; total.setAttribute('aria-live','polite');
+const coverage=el('p','','note'); const fxLabel=el('label','Курс ₽ за € '); const fx=el('input'); fx.type='number'; fx.min='0.01';fx.step='0.01';fx.value=state.fx;fxLabel.append(fx);
+fx.addEventListener('input',()=>{state.fx=fx.value;save();refresh(false);});
+budget.append(total,coverage,fxLabel,el('p','Сумма по 14 выбранным темам. Для часов ниже 4 применяется ставка за 4 ч к фактическому объёму, свыше 100 ч — ставка за 100 ч.','note'));
+const registry=el('section','','ex-panel'); registry.id='expert-registry';
+registry.append(el('h2','Реестр экспертов'),el('p','Категория определяет ставку. Чтобы поставить эксперта на тему, выберите тему и часы.','note'));
+const regRows=el('tbody'); const regTable=el('table'); const header=regTable.createTHead().insertRow(); for(const title of ['Эксперт','Категория','Назначение в курс']) header.append(el('th',title)); regTable.append(regRows);
+const scroller=el('div','','ex-scroll');scroller.append(regTable); registry.append(scroller);
+const form=el('form','','ex-actions'); const newName=el('input');newName.required=true;newName.placeholder='Имя и фамилия';newName.setAttribute('aria-label','Имя нового эксперта');
+function categorySelect(value){const sel=el('select');for(const [id,[name]] of Object.entries(categories))sel.add(new Option(name,id));sel.value=value;return sel;}
+const newCat=categorySelect('ru-mid');newCat.setAttribute('aria-label','Категория нового эксперта'); const add=el('button','Добавить эксперта');add.type='submit';form.append(newName,newCat,add);registry.append(form);
+form.addEventListener('submit',e=>{e.preventDefault(); const name=newName.value.trim();if(!name)return;state.experts.push(['person-'+Date.now(),name,newCat.value]);newName.value='';save();drawRegistry();refresh();});
+const transfers=el('p','','ex-actions');const download=el('button','Экспорт настроек'); const upload=el('input');upload.type='file';upload.accept='.json,application/json';upload.setAttribute('aria-label','Импорт настроек');const transferStatus=el('span','','note');transfers.append(download,upload,transferStatus);registry.append(transfers);
+download.addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));const a=el('a');a.href=url;a.download='expert-assignments.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+upload.addEventListener('change',async()=>{try{const data=JSON.parse(await upload.files[0].text());if(!Array.isArray(data.experts)||!data.experts.every(x=>Array.isArray(x)&&typeof x[0]==='string'&&typeof x[1]==='string'&&Object.hasOwn(categories,x[2]))||new Set(data.experts.map(x=>x[0])).size!==data.experts.length||!Array.isArray(data.hours)||data.hours.length!==topics.length||!data.hours.every(x=>x&&typeof x==='object'&&!Array.isArray(x)&&Object.entries(x).every(([id,h])=>data.experts.some(p=>p[0]===id)&&typeof h==='number'&&Number.isFinite(h)&&h>=0)))throw Error();state=data;fx.value=state.fx||'';save();drawRegistry();refresh();transferStatus.textContent='Настройки импортированы';}catch{transferStatus.textContent='Файл настроек не распознан';}upload.value='';});
+function numberField(value,label){const input=el('input','','ex-input');input.type='number';input.min='0';input.step='0.01';input.value=value;input.setAttribute('aria-label',label);return input;}
+function drawRegistry(){regRows.replaceChildren();for(const [id,name,category] of state.experts){const row=regRows.insertRow();row.insertCell().textContent=name;const select=categorySelect(category);select.setAttribute('aria-label','Категория: '+name);select.addEventListener('change',()=>{state.experts.find(p=>p[0]===id)[2]=select.value;save();refresh();});row.insertCell().append(select);const line=el('div','','ex-assign');const topic=el('select');topic.setAttribute('aria-label','Тема: '+name);topics.forEach(([title],i)=>topic.add(new Option(title,i)));const hours=numberField(state.hours[0][id]??topics[0][1],'Часы назначения: '+name);topic.addEventListener('change',()=>{hours.value=state.hours[topic.value][id]??topics[topic.value][1];});const assign=el('button','Назначить');assign.addEventListener('click',()=>{if(hours.value&&hours.validity.valid){set(Number(topic.value),id,hours.valueAsNumber);assign.textContent='Назначено';}});topic.addEventListener('change',()=>{assign.textContent='Назначить';});line.append(topic,hours,assign);row.insertCell().append(line);}}
+const topicCards=site&&!separate?[...site.querySelectorAll('details.aouter:first-child details.aflag')]:[];
+const byPerson=site&&!separate?site.querySelectorAll('details.aouter')[1]:el('details');
+if(!site||separate) {host.append(budget,registry);const list=el('section','','ex-panel');list.append(el('h2','Темы автомобильного дизайна'));topics.forEach(([title,h])=>{const d=el('details','','ex-card');d.append(el('summary',title+' · '+h+' ч'));topicCards.push(d);list.append(d);});host.append(list);byPerson.append(el('summary','Часы по экспертам'));host.append(byPerson);}
+else {document.getElementById('vnote').after(budget);const link=el('a','Открыть реестр экспертов','chip');link.href='?experts=1#variant-3'; link.target='_blank';link.rel='noopener';budget.append(link);const inline=el('details');inline.append(el('summary','Реестр экспертов и категории'),registry);budget.append(inline);new MutationObserver(()=>{budget.hidden=document.getElementById('tab-v3').getAttribute('aria-selected')!=='true';}).observe(document.getElementById('tab-v3'),{attributes:true,attributeFilter:['aria-selected']});budget.hidden=document.getElementById('tab-v3').getAttribute('aria-selected')!=='true';}
+const personBody=el('div','','aflags');while(byPerson.children.length>1)byPerson.lastElementChild.remove();byPerson.append(el('p','Часы меняются здесь и в карточках тем. Изменения сохраняются в браузере.','note'),personBody);
+const topicControls=topicCards.map(c=>{const block=el('div','','ex-panel');c.append(block);return block;});
+function hoursEditor(i,id,name,value){const input=numberField(value,'Часы: '+name+' — '+topics[i][0]);input.addEventListener('change',()=>{if(input.value&&input.validity.valid)set(i,id,input.valueAsNumber);else input.value=state.hours[i][id];});return input;}
+function refresh(rebuild=true){
+ const sums=Object.fromEntries(state.experts.map(([id])=>[id,summation(state.hours.map(row=>row[id]||0))])); const totals={EUR:0,RUB:0}; let assigned=0;let over=0;
+ state.hours.forEach((row,i)=>{const h=summation(Object.values(row));assigned+=Math.min(topics[i][1],h);over+=Math.max(0,h-topics[i][1]);});
+ for(const [id,,cat] of state.experts){const [,currency,series]=categories[cat];totals[currency]+=Math.round(sums[id]*rate(sums[id],series)*100)/100;}
+ total.textContent=money(totals.EUR,'EUR')+' + '+money(totals.RUB,'RUB')+(fx.validity.valid&&fx.valueAsNumber>0?' · всего '+money(totals.RUB+totals.EUR*fx.valueAsNumber,'RUB'):'');
+ coverage.textContent='Распределено '+fmt(assigned)+' из 60 ч тем · свободно '+fmt(60-assigned)+' ч'+(over>0.005?' · расходы включают '+fmt(over)+' ч сверх длительности тем':'');
+ if(!rebuild)return;
+ const open=new Set([...personBody.querySelectorAll('details[open]')].map(d=>d.dataset.person));personBody.replaceChildren();
+ for(const [id,name,cat] of state.experts){const indices=topics.map((_,i)=>i).filter(i=>Object.hasOwn(state.hours[i],id));if(!indices.length)continue;const d=el('details','','flag aflag ex-card');d.dataset.person=id;d.open=open.has(id);const summary=el('summary',name+' · '+fmt(sums[id])+' ч · '+money(sums[id]*rate(sums[id],categories[cat][2]),categories[cat][1]));d.append(summary);for(const i of indices){const row=el('div','','ex-hours-row');row.append(el('span',topics[i][0]),hoursEditor(i,id,name,state.hours[i][id]));d.append(row);}personBody.append(d);}
+ const hint=byPerson.querySelector('summary .fhint');if(hint)hint.textContent=personBody.children.length+' экспертов';
+ topicControls.forEach((block,i)=>{block.replaceChildren();const [title,duration]=topics[i];const h=summation(Object.values(state.hours[i]));block.append(el('strong',fmt(h)+' из '+duration+' ч назначено'));const controls=el('div','','ex-assign');for(const [id,name] of state.experts){const pair=el('span','','ex-assign');const label=el('label');const cb=el('input');cb.type='checkbox';cb.checked=Object.hasOwn(state.hours[i],id);cb.addEventListener('change',()=>set(i,id,cb.checked?Math.round(Math.max(0,duration-h)*100)/100:null));label.append(cb,document.createTextNode(name));pair.append(label);if(cb.checked)pair.append(hoursEditor(i,id,name,state.hours[i][id]));controls.append(pair);}block.append(controls);});
+}
+drawRegistry();refresh();window.addEventListener('storage',e=>{if(e.key===key&&e.newValue){state=JSON.parse(e.newValue);fx.value=state.fx||'';drawRegistry();refresh();}});
 })();
-</script>
-</body>
+</script></body>
 </html>
