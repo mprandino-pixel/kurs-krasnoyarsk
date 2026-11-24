@@ -779,10 +779,11 @@ hoursFooter.setAttribute('aria-live','polite');
 const lastTopic=topicCards.at(-1);
 if(lastTopic)lastTopic.parentElement.after(hoursFooter);
 const cardEntries=topicCards.map((card,i)=>({card,block:topicControls[i],i}));
+const generalDescriptions={"Позиционирование и ценностное предложение":"Какую ценность даёт продукт, кому и чем отличается от конкурентов","Цели и показатели успеха":"Измеримые цели проекта. Какие показатели (KPI) отслеживать и кто за них отвечает","Пользователи и сценарии":"Кто пользуется продуктом, где и как. Сценарии использования","Нейродизайн":"Как форма, цвет, свет и материал влияют на эмоции и поведение пользователя","Нейромаркетинг":"Как человек принимает решение о покупке. Айтрекинг и паттерны внимания","Конкуренты, бренд и требования":"Аудит бренда: заявленная ценность и восприятие. Дизайн-код, эргономика, возможности предприятия","Бриф и ТЗ":"Цели: эстетические, технические, экономические. Почему проекты не удаются из-за брифа","Контракт и объём работ":"Объём работ, ответственность сторон, изменения и претензии, платежи","План проекта":"Этапы, ключевые точки, критический путь, бюджет по этапам, сроки ответа компании. Гант: этапы в рабочих днях, кик-офф 1 и 2, кто утверждает, статус CAD","ЛПР и карта ответственности":"Кто принимает решения, полномочия согласующих, порядок согласований, эскалация. Цепочка утверждения: Marketing → Product → CEO","Качество и риски":"Контроль качества, соответствие требованиям, реестр рисков и меры по снижению","Оснастка, поставщики, закупки":"Подготовка производства, стратегия закупок, выбор поставщиков","Себестоимость и опытная партия":"Оптимизация стоимости без потери замысла (value engineering). Опытная партия","Передача и авторский надзор":"CMF, дизайн-бук, комплектность передачи, сопровождение запуска","Как устроена дизайн-студия":"Процессы и организация работы студии, работа с заказчиком","Мастер, фабрика, поставщики: Италия":"Связка дизайнер — мастер — фабрика; поставщики материалов и производства","Выставки и события 2027":"Автосалоны, выставки материалов, отраслевые события; карта контактов","Резерв · темы уточняются":"Шесть часов для тем, которые будут согласованы после уточнения программы и состава экспертов."};
 const addedGroups=[];
 if(site&&!separate){
  let anchor=site.querySelector('details.aouter');
- for(const [label,start,end] of [['Оставшиеся занятия',originalTopicCount,guestStart],['Приглашённые эксперты',guestStart,autoDirections.length]]){
+ for(const [label,start,end] of [['Общие темы',originalTopicCount,guestStart],['Приглашённые эксперты',guestStart,autoDirections.length]]){
   const group=el('details','','flag aouter');group.style.marginTop='12px';
   const summary=el('summary');const totals=el('span','','fhint');
   summary.append(el('span','','fdot'),el('span',label,'ft'),totals);group.append(summary);
@@ -790,9 +791,9 @@ if(site&&!separate){
   for(let i=start;i<end;i++){
    const card=el('details','','flag aflag ex-card');const heading=el('summary');
    heading.append(el('span',topics[i][0],'ft'),el('span','','fhint'));
-   const block=el('div','','ex-panel');card.append(heading,block);cards.append(card);cardEntries.push({card,block,i});
+   const block=el('div','','ex-panel');card.append(heading);const description=generalDescriptions[topics[i][0]];if(description)card.append(el('p',description,'note'));card.append(block);cards.append(card);cardEntries.push({card,block,i});
   }
-  if(start===originalTopicCount)anchor.before(group);else anchor.after(group);
+  anchor.after(group);anchor=group;
   addedGroups.push({totals,start,end});
  }
 }
