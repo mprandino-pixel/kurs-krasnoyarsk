@@ -691,6 +691,7 @@ addEventListener("hashchange",()=>{if(location.hash==="#price"||location.hash===
 
 
 <style>
+.ex-formula{display:inline-block;min-width:4ch;padding:3px 8px;border:1px solid var(--line,#d5dbe4);border-radius:5px;background:var(--sheet,#fff);color:var(--accent,#1f4fd1);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}.ex-result-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ex-price-window{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 18px;padding:12px 16px;margin:8px 0;border:1px solid var(--accent);border-radius:6px;background:var(--sheet);box-shadow:0 3px 12px rgba(24,32,43,.12)}
 .ex-price-window[hidden]{display:none}.ex-price-window strong{font-size:14px}.ex-price-window output{font-family:var(--f-mono);font-size:clamp(14px,2.6vw,22px);font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
 .automotive-route-tile{aspect-ratio:1;cursor:pointer;text-align:left;color:var(--ink);font-family:inherit}.automotive-route-tile:hover,.automotive-route-tile[aria-expanded=true]{border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c)}
@@ -749,7 +750,8 @@ else if(!site) document.body.append(host);
 const budget=el('section','','ex-panel');
 const priceWindow=el('section','','ex-price-window');
 const priceLabel=el('strong','Результат расчёта · гонорары экспертов');priceLabel.id='expert-price-label';priceWindow.setAttribute('aria-labelledby',priceLabel.id);
-const total=el('output'); total.id='auto-total'; total.setAttribute('aria-live','polite');
+function formula(label,value=''){const box=el('output','','ex-formula');box.setAttribute('aria-label',label);box.value=value;return box;}
+const total=formula('Общая сумма гонораров'); total.id='auto-total'; total.setAttribute('aria-live','polite');
 const coverage=el('p','','note'); const fxLabel=el('label','Курс ₽ за € '); const fx=el('input'); fx.type='number'; fx.min='0.01';fx.step='0.01';fx.value=state.fx;fxLabel.append(fx);
 fx.addEventListener('input',()=>{state.fx=fx.value;save();refresh(false);});
 priceWindow.append(priceLabel,total);
@@ -767,7 +769,7 @@ const transfers=el('p','','ex-actions');const download=el('button','Экспор
 download.addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));const a=el('a');a.href=url;a.download='expert-assignments.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 upload.addEventListener('change',async()=>{try{const data=JSON.parse(await upload.files[0].text());if(!Array.isArray(data.experts)||!data.experts.every(x=>Array.isArray(x)&&typeof x[0]==='string'&&typeof x[1]==='string'&&Object.hasOwn(categories,x[2]))||new Set(data.experts.map(x=>x[0])).size!==data.experts.length||!Array.isArray(data.hours)||(data.hours.length!==autoDirections.length&&data.hours.length!==originalTopicCount&&data.hours.length!==oldRouteTopicCount&&data.hours.length!==guestStart+previousGuestCount)||!validHours(data.hours,data.experts)||Object.entries(data.courseHours||{}).some(([k,rows])=>!Object.hasOwn(programs,k)||!Array.isArray(rows)||rows.length!==programs[k].length||!validHours(rows,data.experts)))throw Error();state=data;fx.value=state.fx||'';save();drawRegistry();refresh();transferStatus.textContent='Настройки импортированы';}catch{transferStatus.textContent='Файл настроек не распознан';}upload.value='';});
 function numberField(value,label){const input=el('input','','ex-input');input.type='number';input.min='0';input.step='0.01';input.value=value;input.setAttribute('aria-label',label);return input;}
-function drawRegistry(){regRows.replaceChildren();for(const [id,name,category] of state.experts){const row=regRows.insertRow();row.insertCell().textContent=name;const select=categorySelect(category);select.setAttribute('aria-label','Категория: '+name);select.addEventListener('change',()=>{state.experts.find(p=>p[0]===id)[2]=select.value;save();refresh();});row.insertCell().append(select);row.insertCell().dataset.personHours=id;row.insertCell().dataset.personFee=id;}}
+function drawRegistry(){regRows.replaceChildren();for(const [id,name,category] of state.experts){const row=regRows.insertRow();row.insertCell().textContent=name;const select=categorySelect(category);select.setAttribute('aria-label','Категория: '+name);select.addEventListener('change',()=>{state.experts.find(p=>p[0]===id)[2]=select.value;save();refresh();});row.insertCell().append(select);const hr=formula('Часы: '+name);hr.dataset.personHours=id;row.insertCell().append(hr);const fee=formula('Гонорар: '+name);fee.dataset.personFee=id;row.insertCell().append(fee);}}
 const topicCards=site&&!separate?[...site.querySelectorAll('details.aouter:first-child details.aflag')]:[];
 const byPerson=site&&!separate?site.querySelectorAll('details.aouter')[1]:el('details');
 if(separate) {const courseLabel=el('label','Курс ');const courseSelect=el('select');courseSelect.id='registry-course';for(const [id,name] of Object.entries(courseNames))courseSelect.add(new Option(name,id));courseSelect.value=course;courseSelect.addEventListener('change',()=>{const next=new URL(location.href);next.searchParams.set('course',courseSelect.value);location.href=next.href;});courseLabel.append(courseSelect);host.append(courseLabel,el('h1',courseNames[course]),priceWindow,budget,registry);const list=el('section','','ex-panel');list.append(el('h2','Направления курса'),el('p',course==='itp'?'В карточках указаны академические часы модулей. Для гонорара введи фактические часы работы эксперта.':'Раскрой направление, отметь эксперта и укажи часы.','note'));topics.forEach(([title,h])=>{const d=el('details','','ex-card');d.append(el('summary',title));topicCards.push(d);list.append(d);});host.append(list);byPerson.append(el('summary','Часы по экспертам'));}
@@ -845,27 +847,27 @@ function refresh(rebuild=true){
  const sums=Object.fromEntries(state.experts.map(([id])=>[id,summation(activeHours().map(row=>row[id]||0))])); const totals={EUR:0,RUB:0}; let assigned=0;let over=0;
  activeHours().forEach((row,i)=>{const h=summation(Object.values(row));assigned+=Math.min(topics[i][1],h);over+=Math.max(0,h-topics[i][1]);});
  for(const [id,,cat] of state.experts){const [,currency,series]=categories[cat];totals[currency]+=Math.round(sums[id]*rate(sums[id],series)*100)/100;}
- total.textContent=money(totals.EUR,'EUR')+' + '+money(totals.RUB,'RUB')+(fx.validity.valid&&fx.valueAsNumber>0?' · всего '+money(totals.RUB+totals.EUR*fx.valueAsNumber,'RUB'):'');
+ total.value=money(totals.EUR,'EUR')+' + '+money(totals.RUB,'RUB')+(fx.validity.valid&&fx.valueAsNumber>0?' · всего '+money(totals.RUB+totals.EUR*fx.valueAsNumber,'RUB'):'');
  const planned=summation(topics.map(t=>t[1]));
  for(const {totals,start,end} of addedGroups){const max=summation(topics.slice(start,end).map(t=>t[1]));const current=summation(activeHours().slice(start,end).map(row=>summation(Object.values(row))));const head=start===guestStart?guestCount+' слотов · ':'';totals.textContent=head+'Рекомендовано '+fmt(max)+' ч · назначено '+fmt(current)+' ч';}
  const footerRows=site&&!separate?activeHours().slice(0,originalTopicCount):activeHours();
  const footerPlan=site&&!separate?summation(topics.slice(0,originalTopicCount).map(t=>t[1])):planned;
  hoursFooter.textContent=(site&&!separate?'Всего по 14 темам · рекомендовано ':'Всего часов · рекомендовано ')+fmt(footerPlan)+(course==='itp'?' ак. ч':' ч')+' · назначено '+fmt(summation(footerRows.map(row=>summation(Object.values(row)))))+' ч';
  coverage.textContent=course==='itp'?'Назначено '+fmt(summation(Object.values(sums)))+' ч работы экспертов':('Распределено '+fmt(assigned)+' из '+planned+' ч в плане назначений · свободно '+fmt(planned-assigned)+' ч')+(over>0.005?' · расходы включают '+fmt(over)+' ч сверх длительности тем':'');
- for(const [id,,cat] of state.experts){const hr=regRows.querySelector('[data-person-hours="'+CSS.escape(id)+'"]');const fee=regRows.querySelector('[data-person-fee="'+CSS.escape(id)+'"]');if(hr)hr.textContent=fmt(sums[id])+' ч';if(fee)fee.textContent=money(sums[id]*rate(sums[id],categories[cat][2]),categories[cat][1]);}
+ for(const [id,,cat] of state.experts){const hr=regRows.querySelector('[data-person-hours="'+CSS.escape(id)+'"]');const fee=regRows.querySelector('[data-person-fee="'+CSS.escape(id)+'"]');if(hr)hr.value=fmt(sums[id])+' ч';if(fee)fee.value=money(sums[id]*rate(sums[id],categories[cat][2]),categories[cat][1]);}
  cardEntries.forEach(({card,i})=>{let tag=card.querySelector('summary .fhint');if(!tag){tag=card.querySelector('summary .ex-plan-hint');if(!tag){tag=el('span','','ex-plan-hint');card.querySelector('summary').append(tag);}}const h=summation(Object.values(activeHours()[i]));tag.textContent=' · Рекомендовано '+fmt(topics[i][1])+(course==='itp'?' ак. ч':' ч')+' · назначено '+fmt(h)+' ч';});
  const open=new Set([...personBody.querySelectorAll('details[open]')].map(d=>d.dataset.person));personBody.replaceChildren();
- for(const [id,name,cat] of state.experts){const indices=topics.map((_,i)=>i).filter(i=>Object.hasOwn(activeHours()[i],id));if(!indices.length)continue;const d=el('details','','flag aflag ex-card');d.dataset.person=id;d.open=open.has(id);const summary=el('summary',name+' · '+fmt(sums[id])+' ч · '+money(sums[id]*rate(sums[id],categories[cat][2]),categories[cat][1]));d.append(summary);for(const i of indices){const row=el('div','','ex-hours-row');row.append(el('span',topics[i][0]),el('strong',fmt(activeHours()[i][id])+' ч'));d.append(row);}personBody.append(d);}
+ for(const [id,name,cat] of state.experts){const indices=topics.map((_,i)=>i).filter(i=>Object.hasOwn(activeHours()[i],id));if(!indices.length)continue;const d=el('details','','flag aflag ex-card');d.dataset.person=id;d.open=open.has(id);const summary=el('summary','','ex-result-row');summary.append(el('span',name),formula('Часы: '+name,fmt(sums[id])+' ч'),formula('Гонорар: '+name,money(sums[id]*rate(sums[id],categories[cat][2]),categories[cat][1])));d.append(summary);for(const i of indices){const row=el('div','','ex-hours-row');row.append(el('span',topics[i][0]),formula('Часы по теме: '+topics[i][0],fmt(activeHours()[i][id])+' ч'));d.append(row);}personBody.append(d);}
  const hint=byPerson.querySelector('summary .fhint');if(hint)hint.textContent=personBody.children.length+' экспертов';
  if(!rebuild){
   for(const {block,i} of cardEntries){
    const subtotal=block.querySelector('[data-topic-subtotal]');
-   if(subtotal)subtotal.textContent=fmt(summation(Object.values(activeHours()[i])))+' из '+topics[i][1]+' ч назначено';
+   if(subtotal)subtotal.value=fmt(summation(Object.values(activeHours()[i])))+' ч';
    for(const field of block.querySelectorAll('[data-hours-expert]'))if(field!==document.activeElement)field.value=String(activeHours()[i][field.dataset.hoursExpert]).replace('.',',');
   }
   return;
  }
- cardEntries.forEach(({block,i})=>{block.replaceChildren();const [title,duration]=topics[i];const h=summation(Object.values(activeHours()[i]));const subtotal=el('strong',fmt(h)+' из '+duration+' ч назначено');subtotal.dataset.topicSubtotal='';block.append(subtotal);const controls=el('div','','ex-assign');if(course==='v3'&&i>=guestStart){
+ cardEntries.forEach(({block,i})=>{block.replaceChildren();const [title,duration]=topics[i];const h=summation(Object.values(activeHours()[i]));const subtotal=formula('Назначено по теме',fmt(h)+' ч');subtotal.dataset.topicSubtotal='';const subtotalLine=el('div','','ex-result-row');subtotalLine.append(el('span','Назначено'),subtotal,el('span','из '+duration+' ч'));block.append(subtotalLine);const controls=el('div','','ex-assign');if(course==='v3'&&i>=guestStart){
  const selected=Object.entries(activeHours()[i]);
  const picker=el('select');picker.setAttribute('aria-label',title);picker.add(new Option('Выбрать эксперта',''));
  for(const [id,name] of state.experts)picker.add(new Option(name,id));
