@@ -688,5 +688,152 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")hide()});window.addE
 addEventListener("hashchange",()=>{if(location.hash==="#price"||location.hash==="#itp"){view=location.hash.slice(1);render();return}view="prog";const n=location.hash==="#variant-1"?"v1":(location.hash==="#variant-3"||location.hash==="#auto")?"v3":"v2";if(n!==cur){cur=n;openWeek=null}render()});
 </script>
 
+
+<style>
+.auto-budget{background:var(--sheet);border:1px solid var(--accent);border-radius:6px;padding:18px}.auto-budget[hidden]{display:none}.auto-budget h2{margin-bottom:8px}.auto-budget p{margin:8px 0}.auto-budget input[type=number]{width:6em;background:var(--sheet);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:4px}.auto-budget output{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}.auto-budget summary{cursor:pointer;padding:8px 0;font-weight:700}.auto-budget fieldset{border:1px solid var(--line);border-radius:4px;margin:8px 0;padding:8px 12px;min-width:0}.auto-budget legend{font-weight:700}.auto-experts{display:flex;flex-wrap:wrap;gap:6px 14px}.auto-expert{display:inline-flex;align-items:center;gap:5px;font-size:13px}.auto-budget .auto-warn{color:var(--b2)}.auto-budget .auto-costs{overflow:auto}.auto-costs table{width:100%;border-collapse:collapse;text-align:left}.auto-costs th,.auto-costs td{padding:5px 8px;border-bottom:1px solid var(--line)}
+</style>
+<script>
+(() => {
+  const experts = [
+    ['michele','Микеле Лионелло','Италия · топ','EUR'],
+    ['oleg','Олег Клявин','Россия · топ','RUB'],
+    ['tigran','Тигран Лалаян','Россия · средний','RUB'],
+    ['margarita','Маргарита Прандино','Италия · средний','EUR'],
+    ['vlad','Влад Новиков','Россия · средний','RUB'],
+    ['maxim','Максим Кузин','Россия · средний','RUB'],
+    ['marcello','Марчелло Прина','Италия · средний','EUR'],
+    ['luca','Лука Виванти','Италия · средний','EUR'],
+    ['nicola','Никола Гуэльфо','Италия · средний','EUR']
+  ];
+  const tariffHours = [4,15,20,40,50,80,100];
+  const tariffs = {
+    'Италия · топ':[450,250,240,180,170,140,120],
+    'Италия · средний':[300,200,190,150,140,120,100],
+    'Россия · топ':[15000,9500,9000,7500,7000,6000,5000],
+    'Россия · средний':[10000,6500,6000,5000,4500,4000,3500]
+  };
+  const storageKey = 'kurs-krasnoyarsk:auto-budget:v1';
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(storageKey)) || {}; } catch {}
+  const sessions = DATA.v3.flatMap(week => week.sessions.map(session => ({...session,week:week.w})));
+  const defaults = {};
+  const excludesOleg = session => /CMF|СМФ|\bC\s*&\s*T\b|скетчинг|sketching/iu.test(session.title) || /CMF|СМФ/iu.test(session.desc);
+  for (const session of sessions) {
+    const names = session.expert ? [session.desc,session.mat].join(' ') : (session.mat || '').replace(/([^)]*)/g, '');
+    const chosen = experts.filter(([id,name]) => names.includes(name) && (id !== 'oleg' || !excludesOleg(session))).map(([id]) => id);
+    if (!session.expert && !excludesOleg(session) && !chosen.includes('oleg')) chosen.push('oleg');
+    const equalShare = chosen.length ? Math.floor(200 / chosen.length) : 0;
+    defaults[session.n] = Object.fromEntries(chosen.map((id,i) => [id,(equalShare + (i < 200 % chosen.length ? 1 : 0))/100]));
+  }
+  const allocations = {...defaults,...saved.allocations};
+  const section = document.createElement('section');
+  section.className = 'auto-budget';
+  section.hidden = true;
+  section.setAttribute('aria-labelledby','auto-budget-title');
+  section.innerHTML = '<h2 id="auto-budget-title">Себестоимость · гонорары экспертов</h2><p><output id="auto-total" aria-live="polite"></output></p><p id="auto-coverage" class="note"></p><label>Курс ₽ за € для общего итога <input id="auto-fx" type="number" min="0.01" step="0.01" inputmode="decimal"></label><p class="note">Оценка прямых гонораров. Ставка зависит от суммарных часов человека. Для объёма меньше 4 ч применяется ставка за 4 ч к фактическим часам. Для объёма свыше 100 ч применяется ставка за 100 ч. Перевод, поездки, налоги и другие затраты в этой сумме отсутствуют.</p><p class="note">Команда Микеле предварительно оценивает покрытие примерно в 80% тем брифа. По выделению в брифе отмечено 19 из 25 пунктов. Часы команды уточняются после Zoom. Показанные назначения — рабочая оценка.</p><p class="note">Олег предложен на учебные занятия, кроме скетчинга и CMF. В занятиях по AI его часть охватывает инструменты вне скетчинга. В совместных занятиях часы по умолчанию делятся между лекторами. География тарифа означает сторону проекта.</p><details><summary>Часы и гонорары по людям</summary><div class="auto-costs"><table><thead><tr><th>Эксперт</th><th>Категория</th><th>Часы</th><th>Гонорар</th></tr></thead><tbody id="auto-cost-rows"></tbody></table></div></details><details id="auto-assignments"><summary>Назначить экспертов и изменить часы</summary><p class="note">Флажок добавляет эксперта на занятие. Можно изменить часы каждого. Изменения сохраняются в этом браузере.</p></details>';
+  document.getElementById('vnote').after(section);
+  const fx = section.querySelector('#auto-fx');
+  fx.value = saved.fx || '';
+  const assignments = section.querySelector('#auto-assignments');
+  const persist = () => { try { localStorage.setItem(storageKey, JSON.stringify({allocations,fx:fx.value})); } catch {} };
+  const money = (value,currency) => new Intl.NumberFormat('ru-RU',{style:'currency',currency,maximumFractionDigits:2}).format(value);
+  const quantity = value => new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2}).format(value);
+  const hourly = (hours,category) => {
+    const rates = tariffs[category];
+    const h = Math.max(4,Math.min(100,hours));
+    const hi = tariffHours.findIndex(value => value >= h);
+    if (tariffHours[hi] === h) return rates[hi];
+    const lo = hi-1;
+    return rates[lo] * (h/tariffHours[lo]) ** (Math.log(rates[hi]/rates[lo])/Math.log(tariffHours[hi]/tariffHours[lo]));
+  };
+  function update() {
+    const total = {EUR:0,RUB:0};
+    let allocated = 0;
+    let open = 0;
+    let over = 0;
+    for (const session of sessions) {
+      const sum = Object.values(allocations[session.n]).reduce((a,h) => a+h,0);
+      allocated += Math.min(sum,2);
+      if (sum < 1.999) open++;
+      if (sum > 2.001) over++;
+      section.querySelector('[data-session="'+session.n+'"]').textContent = quantity(sum)+' из 2 ч';
+    }
+    const rows = section.querySelector('#auto-cost-rows');
+    rows.replaceChildren();
+    for (const [id,name,category,currency] of experts) {
+      const hours = Object.values(allocations).reduce((sum,row) => sum+(row[id] || 0),0);
+      const fee = Math.round(hours*hourly(hours,category)*100)/100;
+      total[currency] += fee;
+      const row = rows.insertRow();
+      for (const value of [name,category,quantity(hours),money(fee,currency)]) row.insertCell().textContent = value;
+    }
+    const combined = fx.validity.valid && fx.valueAsNumber > 0 ? ' · всего '+money(total.RUB+total.EUR*fx.valueAsNumber,'RUB') : '';
+    section.querySelector('#auto-total').textContent = money(total.EUR,'EUR')+' + '+money(total.RUB,'RUB')+combined;
+    section.querySelector('#auto-coverage').textContent = 'Распределено '+quantity(allocated)+' из 120 ч программы · '+open+' встреч с незакрытыми часами'+(over ? ' · '+over+' встреч с назначениями свыше 2 ч' : '');
+  }
+  for (const week of DATA.v3) {
+    const group = document.createElement('details');
+    const heading = document.createElement('summary');
+    heading.textContent = 'Неделя '+week.w+' · '+week.label;
+    group.append(heading);
+    for (const session of week.sessions) {
+      const field = document.createElement('fieldset');
+      const legend = document.createElement('legend');
+      legend.textContent = session.expert ? session.desc : session.title;
+      const status = document.createElement('span');
+      status.className = 'note';
+      status.dataset.session = session.n;
+      const controls = document.createElement('div');
+      controls.className = 'auto-experts';
+      field.append(legend,status,controls);
+      for (const [id,name,category] of experts) {
+        const label = document.createElement('label');
+        label.className = 'auto-expert';
+        const enabled = document.createElement('input');
+        enabled.type = 'checkbox';
+        enabled.checked = Object.hasOwn(allocations[session.n],id);
+        enabled.title = category;
+        const hours = document.createElement('input');
+        hours.type = 'number';
+        hours.min = '0';
+        hours.step = '0.01';
+        hours.value = allocations[session.n][id] ?? 2;
+        hours.hidden = !enabled.checked;
+        hours.setAttribute('aria-label','Часы: '+name+' — '+legend.textContent);
+        if (id === 'oleg' && excludesOleg(session)) {
+          enabled.disabled = true;
+          enabled.title = 'Скетчинг и CMF вне назначения';
+        }
+        enabled.addEventListener('change',() => {
+          if (enabled.checked) {
+            const assigned = Object.values(allocations[session.n]).reduce((a,h) => a+h,0);
+            hours.value = Math.round(Math.max(0,2-assigned)*100)/100;
+            allocations[session.n][id] = Number(hours.value);
+          } else delete allocations[session.n][id];
+          hours.hidden = !enabled.checked;
+          persist();
+          update();
+        });
+        hours.addEventListener('input',() => {
+          if (!hours.validity.valid || !enabled.checked) return;
+          allocations[session.n][id] = Number(hours.value);
+          persist();
+          update();
+        });
+        label.append(enabled,document.createTextNode(name),hours);
+        controls.append(label);
+      }
+      group.append(field);
+    }
+    assignments.append(group);
+  }
+  fx.addEventListener('input',() => { persist(); update(); });
+  const autoTab = document.getElementById('tab-v3');
+  const syncVisibility = () => { section.hidden = autoTab.getAttribute('aria-selected') !== 'true'; };
+  new MutationObserver(syncVisibility).observe(autoTab,{attributes:true,attributeFilter:['aria-selected']});
+  syncVisibility();
+  update();
+})();
+</script>
 </body>
 </html>
