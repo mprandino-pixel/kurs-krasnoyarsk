@@ -707,6 +707,10 @@ const course = isPlanner && Object.hasOwn(courseNames,requestedCourse) ? request
 const originalTopicCount=autoDirections.length;
 const routeBlocks=[0,0,1,3,4,5,6,6,6,7,9,10,3,8,0,0,2,2,2,2,3,3,3,3,6,7,7,7,8,8,8];
 autoDirections.push(...[["Позиционирование и ценностное предложение",2,{}],["Цели и показатели успеха",2,{}],["Пользователи и сценарии",2,{}],["Нейродизайн",2,{}],["Нейромаркетинг",2,{}],["Конкуренты, бренд и требования",2,{}],["Бриф и ТЗ",2,{}],["Контракт и объём работ",2,{}],["План проекта",2,{}],["ЛПР и карта ответственности",2,{}],["Качество и риски",2,{}],["Оснастка, поставщики, закупки",2,{}],["Себестоимость и опытная партия",2,{}],["Передача и авторский надзор",2,{}],["Как устроена дизайн-студия",2,{}],["Мастер, фабрика, поставщики: Италия",2,{}],["Выставки и события 2027",2,{}]]);
+const oldRouteTopicCount=autoDirections.length;
+autoDirections.push(['Резерв · тема уточняется',2,{}]);
+const guestStart=autoDirections.length;
+autoDirections.push(...[["Руководитель компании-производителя: как дизайн влияет на продажи и позицию на рынке",2,{}],["Pininfarina: красота, люди и технологии в дизайне",2,{}],["Made in Italy: итальянский метод проектирования",2,{}],["Нейродизайн на практике",2,{}],["Руководитель дизайн-студии: какой бриф ждёт студия от компании",2,{}],["Управление проектом: дизайн → стоимость → сроки → закупки → риски → качество",2,{}],["Никола Гуэльфо, Italdesign: каково быть дизайнером",2,{}],["Моделлер: макетирование и цифровое моделирование",2,{}],["Инженер-конструктор: как дизайн переходит в конструкцию",2,{}],["Технолог производства: испытания и требования к качеству",2,{}],["Итальянские производители: как работает связка дизайнер — мастер — фабрика",2,{}],["Позиционирование и вывод продукта на рынок",2,{}],["Эксперты из России и Италии: итоги программы и рекомендации",2,{}]]);
 const topics = course === 'v3' ? autoDirections : programs[course];
 const categories = {
   'it-top':['Италия · топ','EUR',[450,250,240,180,170,140,120]],
@@ -748,7 +752,7 @@ form.addEventListener('submit',e=>{e.preventDefault(); const name=newName.value.
 const validHours=(rows,people)=>rows.every(x=>x&&typeof x==='object'&&!Array.isArray(x)&&Object.entries(x).every(([id,h])=>people.some(p=>p[0]===id)&&typeof h==='number'&&Number.isFinite(h)&&h>=0));
 const transfers=el('p','','ex-actions');const download=el('button','Экспорт настроек'); const upload=el('input');upload.type='file';upload.accept='.json,application/json';upload.setAttribute('aria-label','Импорт настроек');const transferStatus=el('span','','note');transfers.append(download,upload,transferStatus);registry.append(transfers);
 download.addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));const a=el('a');a.href=url;a.download='expert-assignments.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
-upload.addEventListener('change',async()=>{try{const data=JSON.parse(await upload.files[0].text());if(!Array.isArray(data.experts)||!data.experts.every(x=>Array.isArray(x)&&typeof x[0]==='string'&&typeof x[1]==='string'&&Object.hasOwn(categories,x[2]))||new Set(data.experts.map(x=>x[0])).size!==data.experts.length||!Array.isArray(data.hours)||(data.hours.length!==autoDirections.length&&data.hours.length!==originalTopicCount)||!validHours(data.hours,data.experts)||Object.entries(data.courseHours||{}).some(([k,rows])=>!Object.hasOwn(programs,k)||!Array.isArray(rows)||rows.length!==programs[k].length||!validHours(rows,data.experts)))throw Error();state=data;fx.value=state.fx||'';save();drawRegistry();refresh();transferStatus.textContent='Настройки импортированы';}catch{transferStatus.textContent='Файл настроек не распознан';}upload.value='';});
+upload.addEventListener('change',async()=>{try{const data=JSON.parse(await upload.files[0].text());if(!Array.isArray(data.experts)||!data.experts.every(x=>Array.isArray(x)&&typeof x[0]==='string'&&typeof x[1]==='string'&&Object.hasOwn(categories,x[2]))||new Set(data.experts.map(x=>x[0])).size!==data.experts.length||!Array.isArray(data.hours)||(data.hours.length!==autoDirections.length&&data.hours.length!==originalTopicCount&&data.hours.length!==oldRouteTopicCount)||!validHours(data.hours,data.experts)||Object.entries(data.courseHours||{}).some(([k,rows])=>!Object.hasOwn(programs,k)||!Array.isArray(rows)||rows.length!==programs[k].length||!validHours(rows,data.experts)))throw Error();state=data;fx.value=state.fx||'';save();drawRegistry();refresh();transferStatus.textContent='Настройки импортированы';}catch{transferStatus.textContent='Файл настроек не распознан';}upload.value='';});
 function numberField(value,label){const input=el('input','','ex-input');input.type='number';input.min='0';input.step='0.01';input.value=value;input.setAttribute('aria-label',label);return input;}
 function drawRegistry(){regRows.replaceChildren();for(const [id,name,category] of state.experts){const row=regRows.insertRow();row.insertCell().textContent=name;const select=categorySelect(category);select.setAttribute('aria-label','Категория: '+name);select.addEventListener('change',()=>{state.experts.find(p=>p[0]===id)[2]=select.value;save();refresh();});row.insertCell().append(select);row.insertCell().dataset.personHours=id;row.insertCell().dataset.personFee=id;}}
 const topicCards=site&&!separate?[...site.querySelectorAll('details.aouter:first-child details.aflag')]:[];
@@ -766,6 +770,22 @@ hoursFooter.setAttribute('aria-live','polite');
 const lastTopic=topicCards.at(-1);
 if(lastTopic)lastTopic.parentElement.after(hoursFooter);
 const cardEntries=topicCards.map((card,i)=>({card,block:topicControls[i],i}));
+const addedGroups=[];
+if(site&&!separate){
+ let anchor=site.querySelector('details.aouter');
+ for(const [label,start,end] of [['Оставшиеся занятия',originalTopicCount,guestStart],['Приглашённые эксперты',guestStart,autoDirections.length]]){
+  const group=el('details','','flag aouter');group.style.marginTop='12px';
+  const summary=el('summary');const totals=el('span','','fhint');
+  summary.append(el('span','','fdot'),el('span',label,'ft'),totals);group.append(summary);
+  const cards=el('div','','aflags');group.append(cards);
+  for(let i=start;i<end;i++){
+   const card=el('details','','flag aflag ex-card');const heading=el('summary');
+   heading.append(el('span',topics[i][0],'ft'),el('span','','fhint'));
+   const block=el('div','','ex-panel');card.append(heading,block);cards.append(card);cardEntries.push({card,block,i});
+  }
+  anchor.after(group);anchor=group;addedGroups.push({totals,start,end});
+ }
+}
 if(site&&!separate){
  const route=document.getElementById('route');
  const panel=el('section','','ex-panel'); panel.hidden=true; panel.style.display='none'; route.after(panel);
@@ -799,10 +819,11 @@ function refresh(rebuild=true){
  for(const [id,,cat] of state.experts){const [,currency,series]=categories[cat];totals[currency]+=Math.round(sums[id]*rate(sums[id],series)*100)/100;}
  total.textContent=money(totals.EUR,'EUR')+' + '+money(totals.RUB,'RUB')+(fx.validity.valid&&fx.valueAsNumber>0?' · всего '+money(totals.RUB+totals.EUR*fx.valueAsNumber,'RUB'):'');
  const planned=summation(topics.map(t=>t[1]));
+ for(const {totals,start,end} of addedGroups){const max=summation(topics.slice(start,end).map(t=>t[1]));const current=summation(activeHours().slice(start,end).map(row=>summation(Object.values(row))));totals.textContent='Рекомендовано '+fmt(max)+' ч · назначено '+fmt(current)+' ч';}
  const footerRows=site&&!separate?activeHours().slice(0,originalTopicCount):activeHours();
  const footerPlan=site&&!separate?summation(topics.slice(0,originalTopicCount).map(t=>t[1])):planned;
  hoursFooter.textContent=(site&&!separate?'Всего по 14 темам · рекомендовано ':'Всего часов · рекомендовано ')+fmt(footerPlan)+(course==='itp'?' ак. ч':' ч')+' · назначено '+fmt(summation(footerRows.map(row=>summation(Object.values(row)))))+' ч';
- coverage.textContent=course==='itp'?'Назначено '+fmt(summation(Object.values(sums)))+' ч работы экспертов':('Распределено '+fmt(assigned)+' из '+planned+' ч направлений · свободно '+fmt(planned-assigned)+' ч')+(over>0.005?' · расходы включают '+fmt(over)+' ч сверх длительности тем':'');
+ coverage.textContent=course==='itp'?'Назначено '+fmt(summation(Object.values(sums)))+' ч работы экспертов':('Распределено '+fmt(assigned)+' из '+planned+' ч в плане назначений · свободно '+fmt(planned-assigned)+' ч')+(over>0.005?' · расходы включают '+fmt(over)+' ч сверх длительности тем':'');
  for(const [id,,cat] of state.experts){const hr=regRows.querySelector('[data-person-hours="'+CSS.escape(id)+'"]');const fee=regRows.querySelector('[data-person-fee="'+CSS.escape(id)+'"]');if(hr)hr.textContent=fmt(sums[id])+' ч';if(fee)fee.textContent=money(sums[id]*rate(sums[id],categories[cat][2]),categories[cat][1]);}
  cardEntries.forEach(({card,i})=>{let tag=card.querySelector('summary .fhint');if(!tag){tag=card.querySelector('summary .ex-plan-hint');if(!tag){tag=el('span','','ex-plan-hint');card.querySelector('summary').append(tag);}}const h=summation(Object.values(activeHours()[i]));tag.textContent=' · Рекомендовано '+fmt(topics[i][1])+(course==='itp'?' ак. ч':' ч')+' · назначено '+fmt(h)+' ч';});
  const open=new Set([...personBody.querySelectorAll('details[open]')].map(d=>d.dataset.person));personBody.replaceChildren();
